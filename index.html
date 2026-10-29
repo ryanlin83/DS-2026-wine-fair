@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
@@ -5,6 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>🍷 紅酒商品查詢系統 - 僅限鼎山店使用</title>
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+
 <style>
 body {
   font-family: "Microsoft JhengHei", sans-serif;
@@ -53,6 +55,7 @@ textarea {
   padding: 10px;
   resize: none;
   font-size: 1em;
+  box-sizing: border-box;
 }
 
 .buttons {
@@ -83,38 +86,34 @@ button:hover {
 }
 .tip {
   color: #8b1e2d;
-  font-size: 0.55em; /* 字體縮小 */
+  font-size: 0.55em;
   margin-top: 5px;
   font-weight: 600;
   text-align: center;
   line-height: 1.4em;
 }
 
-/* ===== Loading Animation ===== */
+/* ===== 查詢中提示：無影片 ===== */
 #loading {
   display: none;
   position: fixed;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
   background: rgba(255,255,255,0.9);
   z-index: 9999;
   justify-content: center;
   align-items: center;
   flex-direction: column;
 }
-#loading video {
-  width: 180px;
-  max-width: 80%;
-  border-radius: 12px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.3);
-}
 
-/* ===== 查詢完成提示框 ===== */
+/* ===== 查詢完成提示框：無影片 ===== */
 #doneModal {
   display: none;
   position: fixed;
-  top:0;
-  left:0;
+  top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
   background: rgba(255,255,255,0.95);
@@ -122,12 +121,6 @@ button:hover {
   justify-content: center;
   align-items: center;
   flex-direction: column;
-}
-#doneModal video {
-  width: 180px;
-  max-width: 80%;
-  border-radius: 12px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.3);
 }
 #doneModal button {
   margin-top: 15px;
@@ -141,7 +134,7 @@ button:hover {
 
 /* ===== Table ===== */
 table {
-  width: 100%; /* 改成自適應手機 */
+  width: 100%;
   max-width: 100%;
   border-collapse: collapse;
   margin-top: 15px;
@@ -161,20 +154,21 @@ th {
 }
 
 /* 條碼圖靠左 */
-th:nth-last-child(1), td[data-label="條碼圖"] {
+th:nth-last-child(1),
+td[data-label="條碼圖"] {
   text-align: left !important;
 }
 
-/* 桌機條碼尺寸 */
+/* 條碼尺寸 */
 .barcode-img {
-  width: 100%;       /* 框內自動縮放 */
-  max-width: 180px;  /* 桌機限制 */
-  height: auto;      /* 保持比例 */
+  width: 100%;
+  max-width: 180px;
+  height: auto;
   display: block;
   margin: 0 auto;
 }
 
-/* 商品位置字體縮小並換行 */
+/* 商品位置 */
 td[data-label="商品位置"] {
   font-size: 1.2em;
   font-weight: 600;
@@ -182,12 +176,14 @@ td[data-label="商品位置"] {
   word-break: break-word;
 }
 
-/* ===== 手機版修正 ===== */
+/* ===== 手機版 ===== */
 @media (max-width: 768px) {
   table, thead, tbody, th, td, tr {
     display: block;
   }
-  thead { display: none; }
+  thead {
+    display: none;
+  }
 
   tr {
     margin-bottom: 15px;
@@ -226,18 +222,18 @@ td[data-label="商品位置"] {
   td[data-label="條碼圖"] img.barcode-img {
     width: 90%;
     height: auto;
-    max-height: 200px; /* 避免過高 */
+    max-height: 200px;
     display: block;
     margin: 0 auto;
   }
 
-  /* 商品位置手機字體略小 */
   td[data-label="商品位置"] {
     font-size: 1em;
   }
 
   input[type="number"] {
     width: 100px;
+    box-sizing: border-box;
   }
 
   .tip {
@@ -249,6 +245,7 @@ td[data-label="商品位置"] {
 }
 </style>
 </head>
+
 <body>
 
 <header>
@@ -257,32 +254,38 @@ td[data-label="商品位置"] {
 </header>
 
 <div class="container">
-  <h3>請輸入紅酒DM商品"訂購編號"（例如：01-01 或多筆 04-06-02, 07-08-01）</h3>
+  <h3>請輸入紅酒DM商品「訂購編號」（例如：01-01 或多筆 04-06-02, 07-08-01）</h3>
+
   <textarea id="orderInput" placeholder="輸入訂購編號..."></textarea>
+
   <div class="buttons">
-    <button id="searchBtn">查詢</button>
-    <button id="clearBtn">清空查詢</button>
+    <button id="searchBtn" type="button">查詢</button>
+    <button id="clearBtn" type="button">清空查詢</button>
   </div>
 
   <div class="note">為確保查詢系統的操作體驗，單次最多查詢支數請以5支為限。</div>
-  <div class="tip">📸 可在『數量』欄位填上想購買的數量後，<br>即可截圖此畫面，結帳時將此截圖提供給服務人員。</div>
+
+  <div class="tip">
+    📸 可在「數量」欄位填上想購買的數量後，<br>
+    即可截圖此畫面，結帳時將此截圖提供給服務人員。
+  </div>
 
   <div id="result"></div>
 </div>
 
-
-<!-- Loading 動畫 -->
+<!-- 查詢中提示：只顯示文字 -->
 <div id="loading">
-  <div style="color:#6b0f1a;font-weight:600;margin-top:10px;">資料查詢中，請稍候…</div>
+  <div style="color:#6b0f1a;font-weight:600;margin-top:10px;">
+    資料查詢中，請稍候…
+  </div>
 </div>
 
-
-<!-- 查詢完成提示框 -->
+<!-- 查詢完成提示框：只顯示文字 -->
 <div id="doneModal">
-  <div style="color:#6b0f1a; font-weight:600; margin-top:10px; font-size:1.2em;">
+  <div style="color:#6b0f1a;font-weight:600;margin-top:10px;font-size:1.2em;">
     查詢已完成 🎉
   </div>
-  <button id="closeDoneModal">關閉</button>
+  <button id="closeDoneModal" type="button">關閉</button>
 </div>
 
 <script>
@@ -292,85 +295,149 @@ const searchBtn = document.getElementById("searchBtn");
 const clearBtn = document.getElementById("clearBtn");
 const loading = document.getElementById("loading");
 const resultDiv = document.getElementById("result");
+const orderInput = document.getElementById("orderInput");
+
 let cachedData = null;
 
-// 查詢完成 modal
+// 查詢完成提示框
 const doneModal = document.getElementById("doneModal");
 const closeDoneModal = document.getElementById("closeDoneModal");
-const doneVideo = doneModal.querySelector("video");
-doneVideo.src = "wine-loading.mp4";
+let doneTimer = null;
 
-// 手動關閉
+// 手動關閉查詢完成提示
 closeDoneModal.addEventListener("click", () => {
   doneModal.style.display = "none";
+  if (doneTimer) {
+    clearTimeout(doneTimer);
+    doneTimer = null;
+  }
 });
 
-// 快取 JSON
+// 載入商品 JSON 資料
 async function loadData() {
-  if (cachedData) return cachedData;
-  const res = await fetch(JSON_URL + "?t=" + Date.now());
-  cachedData = await res.json();
+  if (cachedData) {
+    return cachedData;
+  }
+
+  const response = await fetch(JSON_URL + "?t=" + Date.now());
+
+  if (!response.ok) {
+    throw new Error(
+      "商品資料載入失敗，HTTP 狀態碼：" + response.status
+    );
+  }
+
+  const data = await response.json();
+
+  if (!Array.isArray(data)) {
+    throw new Error("商品資料格式錯誤，預期應為 JSON 陣列。");
+  }
+
+  cachedData = data;
   return cachedData;
 }
 
 // 查詢功能
 searchBtn.addEventListener("click", async () => {
-  const input = document.getElementById("orderInput").value.trim();
+  const input = orderInput.value.trim();
+
   if (!input) {
     alert("請輸入至少一個訂購編號！");
     return;
   }
 
   const codes = input.split(/[\n,，\s]+/).filter(Boolean);
+
   if (codes.length > 5) {
     alert("⚠ 每次最多查詢 5 筆商品，請減少查詢數量。");
     return;
   }
+
+  // 避免重複顯示舊提示
+  if (doneTimer) {
+    clearTimeout(doneTimer);
+    doneTimer = null;
+  }
+  doneModal.style.display = "none";
 
   loading.style.display = "flex";
   resultDiv.innerHTML = "";
 
   try {
     const data = await loadData();
-    const results = data.filter(item => codes.includes(item["訂購編號"]));
+
+    const results = data.filter(item =>
+      codes.includes(String(item["訂購編號"] ?? "").trim())
+    );
 
     if (results.length === 0) {
-      resultDiv.innerHTML = `<p style="color:red;">查無資料，請確認訂購編號是否正確。</p>`;
+      resultDiv.innerHTML =
+        '<p style="color:red;">查無資料，請確認訂購編號是否正確。</p>';
       return;
     }
 
-    let tableHTML = `<table><thead><tr>`;
+    let tableHTML = "<table><thead><tr>";
     const headers = Object.keys(results[0]);
-    headers.forEach(h => tableHTML += `<th>${h}</th>`);
-    tableHTML += `<th>數量</th><th>條碼圖</th></tr></thead><tbody>`;
+
+    headers.forEach(header => {
+      tableHTML += `<th>${header}</th>`;
+    });
+
+    tableHTML += "<th>數量</th><th>條碼圖</th></tr></thead><tbody>";
 
     results.forEach(item => {
-      tableHTML += `<tr>`;
-      headers.forEach(h => {
-        tableHTML += `<td data-label="${h}">${item[h] || ""}</td>`;
+      tableHTML += "<tr>";
+
+      headers.forEach(header => {
+        const value = item[header] ?? "";
+        const cell = document.createElement("span");
+        cell.textContent = String(value);
+
+        // 使用 HTML 轉義，避免商品資料中的特殊字元破壞版面
+        const safeValue = String(value)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#39;");
+
+        tableHTML += `<td data-label="${String(header)
+          .replace(/&/g, "&amp;")
+          .replace(/"/g, "&quot;")}">${safeValue}</td>`;
       });
-      tableHTML += `<td data-label="數量"><input type="number" min="0" placeholder="0"></td>`;
-      const code = item["條碼"] || "";
-      const barcode = code
-        ? `<img class="barcode-img" src="https://barcodeapi.org/api/ean13/${code}?height=60" alt="barcode">`
+
+      tableHTML +=
+        '<td data-label="數量"><input type="number" min="0" step="1" placeholder="0" aria-label="購買數量"></td>';
+
+      const code = String(item["條碼"] ?? "").trim();
+
+      const barcode = /^\d{13}$/.test(code)
+        ? `<img class="barcode-img" src="https://barcodeapi.org/api/ean13/${code}?height=60" alt="商品條碼" loading="lazy">`
         : "";
+
       tableHTML += `<td data-label="條碼圖">${barcode}</td></tr>`;
     });
 
-    tableHTML += `</tbody></table>`;
+    tableHTML += "</tbody></table>";
     resultDiv.innerHTML = tableHTML;
 
     // 顯示查詢完成提示框
     doneModal.style.display = "flex";
 
-    // 自動 3 秒後隱藏
-    setTimeout(() => {
+    // 3 秒後自動關閉
+    doneTimer = setTimeout(() => {
       doneModal.style.display = "none";
+      doneTimer = null;
     }, 3000);
 
-  } catch (e) {
-    console.error(e);
-    alert("查詢時發生錯誤，請稍後再試。");
+  } catch (error) {
+    console.error("商品查詢錯誤：", error);
+
+    resultDiv.innerHTML =
+      '<p style="color:red;">商品資料載入失敗，請確認網路連線及 data/wine-data.json 檔案是否存在。</p>';
+
+    alert("查詢時發生錯誤，請稍後再試。\n" + error.message);
+
   } finally {
     loading.style.display = "none";
   }
@@ -378,9 +445,16 @@ searchBtn.addEventListener("click", async () => {
 
 // 清空查詢
 clearBtn.addEventListener("click", () => {
-  document.getElementById("orderInput").value = "";
+  orderInput.value = "";
   resultDiv.innerHTML = "";
+  doneModal.style.display = "none";
+
+  if (doneTimer) {
+    clearTimeout(doneTimer);
+    doneTimer = null;
+  }
 });
 </script>
+
 </body>
 </html>
